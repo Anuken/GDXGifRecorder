@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.*;
 
@@ -24,13 +25,13 @@ public class GifRecorder{
 	private float saveprogress;
 	private static final float defaultSize = 300;
 	private SpriteBatch batch;
+	private Matrix4 matrix = new Matrix4();
 	private Array<byte[]> frames = new Array<byte[]>();
 	private int recordfps = 30;
 	private boolean skipAlpha = false;
 	private float gifx, gify, gifwidth, gifheight, giftime;
 	private boolean recording, open;
 	private int resizeKey = Keys.CONTROL_LEFT, openKey = Keys.E, recordKey = Keys.T;
-	private float screenScale = 1f;
 	private FileHandle exportdirectory, workdirectory;
 	private File lastRecording;
 	private TextureRegion region;
@@ -38,20 +39,15 @@ public class GifRecorder{
 	private boolean disableGUI;
 
 	public GifRecorder(SpriteBatch batch) {
-		this(batch, 1f, Gdx.files.local("gifexport"), Gdx.files.local(".gifimages"));
+		this(batch, Gdx.files.local("gifexport"), Gdx.files.local(".gifimages"));
 	}
 
-	public GifRecorder(SpriteBatch batch, float scale) {
-		this(batch, scale, Gdx.files.local("gifexport"), Gdx.files.local(".gifimages"));
-	}
-
-	public GifRecorder(SpriteBatch batch, float scale, FileHandle exportdirectory, FileHandle workdirectory) {
+	public GifRecorder(SpriteBatch batch, FileHandle exportdirectory, FileHandle workdirectory) {
 		this.batch = batch;
-		screenScale = scale;
-		gifx = -defaultSize / 2 * screenScale;
-		gify = -defaultSize / 2 * screenScale;
-		gifwidth = defaultSize * screenScale;
-		gifheight = defaultSize * screenScale;
+		gifx = -defaultSize / 2;
+		gify = -defaultSize / 2;
+		gifwidth = defaultSize;
+		gifheight = defaultSize;
 		this.workdirectory = workdirectory;
 		this.exportdirectory = exportdirectory;
 
@@ -87,10 +83,24 @@ public class GifRecorder{
 	public void update(){
 		doInput();
 		float delta = Gdx.graphics.getDeltaTime();
+		
 		if(!open)
 			return;
-		float wx = Gdx.graphics.getWidth() / 2 * screenScale;
-		float wy = Gdx.graphics.getHeight() / 2 * screenScale;
+		
+		Matrix4 old = batch.getProjectionMatrix();
+		
+		matrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		
+		batch.setProjectionMatrix(matrix);
+		
+		boolean wasDrawing = batch.isDrawing();
+		
+		if(wasDrawing) batch.end();
+		
+		batch.begin();
+		
+		float wx = Gdx.graphics.getWidth() / 2;
+		float wy = Gdx.graphics.getHeight() / 2;
 		
 		if(!disableGUI)
 			batch.setColor(Color.YELLOW);
@@ -100,8 +110,8 @@ public class GifRecorder{
 			if(!disableGUI)
 				batch.setColor(Color.GREEN);
 			
-			float xs = Math.abs(Gdx.graphics.getWidth() / 2 - Gdx.input.getX()) * screenScale;
-			float ys = Math.abs(Gdx.graphics.getHeight() / 2 - (Gdx.graphics.getHeight() - Gdx.input.getY())) * screenScale;
+			float xs = Math.abs(Gdx.graphics.getWidth() / 2 - Gdx.input.getX());
+			float ys = Math.abs(Gdx.graphics.getHeight() / 2 - (Gdx.graphics.getHeight() - Gdx.input.getY()));
 			gifx = -xs;
 			gify = -ys;
 			gifwidth = xs * 2;
@@ -124,8 +134,8 @@ public class GifRecorder{
 				if(!disableGUI)
 					batch.setColor(Color.BLACK);
 
-				float w = 200 * screenScale, h = 50 * screenScale;
-				batch.draw(region, Gdx.graphics.getWidth() / 2 * screenScale - w / 2, Gdx.graphics.getHeight() / 2 * screenScale - h / 2, w, h);
+				float w = 200, h = 50;
+				batch.draw(region, Gdx.graphics.getWidth() / 2 - w / 2, Gdx.graphics.getHeight() / 2 - h / 2, w, h);
 
 				//this just blends red and green
 				Color a = Color.RED;
@@ -136,7 +146,7 @@ public class GifRecorder{
 
 				batch.setColor(a.r * i + b.r * s, a.g * i + b.g * s, a.b * i + b.b * s, 1f);
 
-				batch.draw(region, Gdx.graphics.getWidth() / 2 * screenScale - w / 2, Gdx.graphics.getHeight() / 2 * screenScale - h / 2, w * saveprogress, h);
+				batch.draw(region, Gdx.graphics.getWidth() / 2 - w / 2, Gdx.graphics.getHeight() / 2 - h / 2, w * saveprogress, h);
 
 			}
 
@@ -146,10 +156,17 @@ public class GifRecorder{
 		if(recording){
 			giftime += delta;
 			if(Gdx.graphics.getFrameId() % (60 / recordfps) == 0){
-				byte[] pix = ScreenUtils.getFrameBufferPixels((int) (gifx / screenScale) + 1 + Gdx.graphics.getWidth() / 2, (int) (gify / screenScale) + 1 + Gdx.graphics.getHeight() / 2, (int) (gifwidth / screenScale) - 2, (int) (gifheight / screenScale) - 2, true);
+				byte[] pix = ScreenUtils.getFrameBufferPixels((int) (gifx) + 1 + Gdx.graphics.getWidth() / 2, (int) (gify) + 1 + Gdx.graphics.getHeight() / 2, (int) (gifwidth) - 2, (int) (gifheight) - 2, true);
 				frames.add(pix);
 			}
 		}
+		
+		batch.end();
+		
+		batch.setProjectionMatrix(old);
+		
+		if(wasDrawing) batch.begin();
+		
 	}
 
 	public void setGUIDisabled(boolean disabled){
@@ -222,10 +239,6 @@ public class GifRecorder{
 
 	public void setFPS(int fps){
 		recordfps = fps;
-	}
-
-	public void setScreenScale(float scale){
-		screenScale = scale;
 	}
 
 	public File getLastRecording(){
@@ -353,7 +366,7 @@ public class GifRecorder{
 	}
 
 	private Pixmap createPixmap(byte[] pixels){
-		return createPixmap(pixels, (int) (gifwidth / screenScale) - 2, (int) (gifheight / screenScale) - 2);
+		return createPixmap(pixels, (int) (gifwidth) - 2, (int) (gifheight) - 2);
 	}
 
 	/** Default controller implementation, uses the provided keys */
