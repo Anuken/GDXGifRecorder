@@ -1,8 +1,12 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'maven'
 
-sourceCompatibility = 1.5
+sourceCompatibility = 1.7
 version = '1.0'
+group = 'com.github.Anuken'
+
+sourceSets.main.java.srcDirs = [ "src/" ]
 
 repositories {
     mavenCentral()
