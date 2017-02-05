@@ -28,6 +28,7 @@ public class GifRecorder{
 	private Matrix4 matrix = new Matrix4();
 	private Array<byte[]> frames = new Array<byte[]>();
 	private int recordfps = 30;
+	private float frametime;
 	private boolean skipAlpha = false;
 	private float gifx, gify, gifwidth, gifheight, giftime;
 	private boolean recording, open;
@@ -155,9 +156,11 @@ public class GifRecorder{
 
 		if(recording){
 			giftime += delta;
-			if(Gdx.graphics.getFrameId() % (60 / recordfps) == 0){
+			frametime += delta*61f;
+			if(frametime >= (60 / recordfps)){
 				byte[] pix = ScreenUtils.getFrameBufferPixels((int) (gifx) + 1 + Gdx.graphics.getWidth() / 2, (int) (gify) + 1 + Gdx.graphics.getHeight() / 2, (int) (gifwidth) - 2, (int) (gifheight) - 2, true);
 				frames.add(pix);
+				frametime = 0;
 			}
 		}
 		
