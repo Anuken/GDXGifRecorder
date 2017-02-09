@@ -37,6 +37,7 @@ public class GifRecorder{
 	private File lastRecording;
 	private TextureRegion region;
 	private RecorderController controller = new DefaultController();
+	private float speedMultiplier = 1f;
 	private boolean disableGUI;
 
 	public GifRecorder(SpriteBatch batch) {
@@ -156,7 +157,7 @@ public class GifRecorder{
 
 		if(recording){
 			giftime += delta;
-			frametime += delta*61f;
+			frametime += delta*61f*speedMultiplier;
 			if(frametime >= (60 / recordfps)){
 				byte[] pix = ScreenUtils.getFrameBufferPixels((int) (gifx) + 1 + Gdx.graphics.getWidth() / 2, (int) (gify) + 1 + Gdx.graphics.getHeight() / 2, (int) (gifwidth) - 2, (int) (gifheight) - 2, true);
 				frames.add(pix);
@@ -170,6 +171,11 @@ public class GifRecorder{
 		
 		if(wasDrawing) batch.begin();
 		
+	}
+	
+	/**Sets the speed multiplier. Lower numbers make the gif go slower, higher numbers make it go faster*/
+	public void setSpeedMultiplier(float m){
+		this.speedMultiplier = m;
 	}
 
 	public void setGUIDisabled(boolean disabled){
