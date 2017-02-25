@@ -89,11 +89,9 @@ public class GifRecorder{
 		if(!open)
 			return;
 		
-		Matrix4 old = batch.getProjectionMatrix();
+		matrix.set(batch.getProjectionMatrix());
 		
-		matrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		
-		batch.setProjectionMatrix(matrix);
+		batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		
 		boolean wasDrawing = batch.isDrawing();
 		
@@ -167,13 +165,13 @@ public class GifRecorder{
 		
 		batch.end();
 		
-		batch.setProjectionMatrix(old);
+		batch.getProjectionMatrix().set(matrix);
 		
 		if(wasDrawing) batch.begin();
 		
 	}
 	
-	/**Sets the speed multiplier. Lower numbers make the gif go slower, higher numbers make it go faster*/
+	/**Sets the speed multiplier. Higher numbers make the gif go slower, lower numbers make it go faster*/
 	public void setSpeedMultiplier(float m){
 		this.speedMultiplier = m;
 	}
