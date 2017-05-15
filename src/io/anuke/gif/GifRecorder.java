@@ -323,7 +323,7 @@ public class GifRecorder{
 
 	private File compileGIF(Array<String> strings, FileHandle inputdirectory, FileHandle directory){
 		if(strings.size == 0){
-			System.err.println("WARNING: no strings!");
+			new RuntimeException("No strings!");
 			return null;
 		}
 		try{
