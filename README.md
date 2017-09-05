@@ -1,4 +1,4 @@
-# GdxGifRecorder
+## GdxGifRecorder
 A simple utility class for libGDX that records a GIF and saves it automatically.
 
 ### Usage
@@ -19,4 +19,4 @@ And that's it! You're done.
 
 By default, recordings are saved to `./gifexports/recording-xxxxx.gif`.
 
-Note that images are also exported to a working directory while the GIF is being compiled, `./.gifimages/`.
+Note that images are also exported to a temporary working directory while the GIF is being compiled, `./.gifimages/`.

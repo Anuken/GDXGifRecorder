@@ -13,7 +13,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.Format;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
@@ -21,30 +21,34 @@ import com.badlogic.gdx.utils.*;
 
 /** Records and saves GIFs. */
 public class GifRecorder{
+	private static final float defaultSize = 300;
+	
+	private int resizeKey = Keys.CONTROL_LEFT, openKey = Keys.E, recordKey = Keys.T;
+	private RecorderController controller = new DefaultController();
+	
+	private Batch batch;
+	private Matrix4 matrix = new Matrix4();
+	private TextureRegion region;
+	
+	private boolean skipAlpha = false;
+	private int recordfps = 30;
+	private float gifx, gify, gifwidth, gifheight, giftime;
+	private FileHandle exportdirectory, workdirectory;
+	private boolean disableGUI;
+	private float speedMultiplier = 1f;
+	
+	private Array<byte[]> frames = new Array<byte[]>();
+	private File lastRecording;
+	private float frametime;
+	private boolean recording, open;
 	private boolean saving;
 	private float saveprogress;
-	private static final float defaultSize = 300;
-	private SpriteBatch batch;
-	private Matrix4 matrix = new Matrix4();
-	private Array<byte[]> frames = new Array<byte[]>();
-	private int recordfps = 30;
-	private float frametime;
-	private boolean skipAlpha = false;
-	private float gifx, gify, gifwidth, gifheight, giftime;
-	private boolean recording, open;
-	private int resizeKey = Keys.CONTROL_LEFT, openKey = Keys.E, recordKey = Keys.T;
-	private FileHandle exportdirectory, workdirectory;
-	private File lastRecording;
-	private TextureRegion region;
-	private RecorderController controller = new DefaultController();
-	private float speedMultiplier = 1f;
-	private boolean disableGUI;
 
-	public GifRecorder(SpriteBatch batch) {
+	public GifRecorder(Batch batch) {
 		this(batch, Gdx.files.local("gifexport"), Gdx.files.local(".gifimages"));
 	}
 
-	public GifRecorder(SpriteBatch batch, FileHandle exportdirectory, FileHandle workdirectory) {
+	public GifRecorder(Batch batch, FileHandle exportdirectory, FileHandle workdirectory) {
 		this.batch = batch;
 		gifx = -defaultSize / 2;
 		gify = -defaultSize / 2;
@@ -175,11 +179,13 @@ public class GifRecorder{
 	public void setSpeedMultiplier(float m){
 		this.speedMultiplier = m;
 	}
-
+	
+	/**Set to true to disable drawing the UI.*/
 	public void setGUIDisabled(boolean disabled){
 		this.disableGUI = true;
 	}
-
+	
+	/**Sets the controller (or class that controls input)*/
 	public void setController(RecorderController controller){
 		this.controller = controller;
 	}
@@ -267,11 +273,13 @@ public class GifRecorder{
 	public void setBounds(Rectangle rect){
 		setBounds(rect.x, rect.y, rect.width, rect.height);
 	}
-
+	
+	/**Takes a full-screen screenshot and saves it to a file.*/
 	public FileHandle takeScreenshot(){
 		return takeScreenshot(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 	}
-
+	
+	/**Takes a full-screen screenshot of the specified region saves it to a file.*/
 	public FileHandle takeScreenshot(int x, int y, int width, int height){
 		byte[] pix = ScreenUtils.getFrameBufferPixels(x, y, width, height, true);
 
@@ -282,7 +290,7 @@ public class GifRecorder{
 		pixmap.dispose();
 		return file;
 	}
-
+	
 	public void writeGIF(){
 		writeGIF(workdirectory, exportdirectory);
 	}
@@ -396,7 +404,7 @@ public class GifRecorder{
 	 * Provide an implementation and call recorder.setController() for custom
 	 * input
 	 */
-	static interface RecorderController{
+	public static interface RecorderController{
 		public boolean openKeyPressed();
 
 		public boolean recordKeyPressed();
