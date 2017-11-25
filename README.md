@@ -1,3 +1,5 @@
+[![](https://jitpack.io/v/Anuken/GdxGifRecorder.svg)](https://jitpack.io/#Anuken/GdxGifRecorder)
+
 ## GdxGifRecorder
 A simple utility class for libGDX that records a GIF and saves it automatically.
 
