@@ -23,7 +23,7 @@ import com.badlogic.gdx.utils.*;
 public class GifRecorder{
 	private static final float defaultSize = 300;
 	
-	private int resizeKey = Keys.CONTROL_LEFT, openKey = Keys.E, recordKey = Keys.T;
+	private int resizeKey = Keys.CONTROL_LEFT, openKey = Keys.E, recordKey = Keys.T, shiftKey = Keys.SHIFT_LEFT;
 	private RecorderController controller = new DefaultController();
 	
 	private Batch batch;
@@ -33,6 +33,7 @@ public class GifRecorder{
 	private boolean skipAlpha = false;
 	private int recordfps = 30;
 	private float gifx, gify, gifwidth, gifheight, giftime;
+	private float offsetx, offsety;
 	private FileHandle exportdirectory, workdirectory;
 	private boolean disableGUI;
 	private float speedMultiplier = 1f;
@@ -64,7 +65,7 @@ public class GifRecorder{
 		region = new TextureRegion(new Texture(pixmap));
 	}
 
-	private void doInput(){
+	protected void doInput(){
 		if(controller.openKeyPressed() && !saving){
 			if(recording){
 				finishRecording();
@@ -114,12 +115,22 @@ public class GifRecorder{
 			if(!disableGUI)
 				batch.setColor(Color.GREEN);
 			
-			float xs = Math.abs(Gdx.graphics.getWidth() / 2 - Gdx.input.getX());
-			float ys = Math.abs(Gdx.graphics.getHeight() / 2 - (Gdx.graphics.getHeight() - Gdx.input.getY()));
+			float xs = Math.abs(Gdx.graphics.getWidth() / 2 + offsetx - Gdx.input.getX());
+			float ys = Math.abs(Gdx.graphics.getHeight() / 2 + offsety - (Gdx.graphics.getHeight() - Gdx.input.getY()));
 			gifx = -xs;
 			gify = -ys;
 			gifwidth = xs * 2;
 			gifheight = ys * 2;
+		}
+		
+		if(controller.shiftKeyPressed()){
+			if(!disableGUI)
+				batch.setColor(Color.ORANGE);
+			
+			float xs = (Gdx.graphics.getWidth() / 2 - Gdx.input.getX());
+			float ys = (Gdx.graphics.getHeight() / 2 - (Gdx.graphics.getHeight() - Gdx.input.getY()));
+			offsetx = -xs;
+			offsety = -ys;
 		}
 
 		if(!disableGUI){
@@ -128,10 +139,10 @@ public class GifRecorder{
 				batch.setColor(Color.RED);
 			
 			if(region != null){
-				batch.draw(region, gifx + wx, gify + wy, gifwidth, 1f);
-				batch.draw(region, gifx + wx, gify + wy + gifheight, gifwidth, 1f);
-				batch.draw(region, gifx + wx, gify + wy, 1f, gifheight);
-				batch.draw(region, gifx + wx + gifwidth, gify + wy, 1f, gifheight + 1f);
+				batch.draw(region, gifx + wx + offsetx, gify + wy + offsety, gifwidth, 1f);
+				batch.draw(region, gifx + wx + offsetx, gify + wy + gifheight + offsety, gifwidth, 1f);
+				batch.draw(region, gifx + wx + offsetx, gify + wy + offsety, 1f, gifheight);
+				batch.draw(region, gifx + wx + offsetx + gifwidth, gify + wy + offsety, 1f, gifheight + 1f);
 			}
 
 			if(saving){
@@ -161,7 +172,9 @@ public class GifRecorder{
 			giftime += delta;
 			frametime += delta*61f*speedMultiplier;
 			if(frametime >= (60 / recordfps)){
-				byte[] pix = ScreenUtils.getFrameBufferPixels((int) (gifx) + 1 + Gdx.graphics.getWidth() / 2, (int) (gify) + 1 + Gdx.graphics.getHeight() / 2, (int) (gifwidth) - 2, (int) (gifheight) - 2, true);
+				byte[] pix = ScreenUtils.getFrameBufferPixels((int) (gifx + offsetx) + 1 + Gdx.graphics.getWidth() / 2, 
+						(int) (gify + offsety) + 1 + Gdx.graphics.getHeight() / 2, 
+						(int) (gifwidth) - 2, (int) (gifheight) - 2, true);
 				frames.add(pix);
 				frametime = 0;
 			}
@@ -386,7 +399,7 @@ public class GifRecorder{
 
 	/** Default controller implementation, uses the provided keys */
 	class DefaultController implements RecorderController{
-
+		
 		public boolean openKeyPressed(){
 			return Gdx.input.isKeyJustPressed(openKey);
 		}
@@ -397,6 +410,10 @@ public class GifRecorder{
 
 		public boolean resizeKeyPressed(){
 			return Gdx.input.isButtonPressed(Buttons.LEFT) && Gdx.input.isKeyPressed(resizeKey);
+		}
+		
+		public boolean shiftKeyPressed(){
+			return Gdx.input.isButtonPressed(Buttons.LEFT) && Gdx.input.isKeyPressed(shiftKey);
 		}
 	}
 
@@ -410,5 +427,7 @@ public class GifRecorder{
 		public boolean recordKeyPressed();
 
 		public boolean resizeKeyPressed();
+		
+		public boolean shiftKeyPressed();
 	}
 }
