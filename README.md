@@ -16,9 +16,10 @@ And that's it! You're done.
 ### Default Controls:
 - E: opens the recorder
 - Left-Ctrl + Left-Mouse: expands the recording bounds to the mouse position
+- Left-Shift + Left-Mouse: moves the recording window to the mouse position
 - T: starts/stops recording
 
 
-By default, recordings are saved to `./gifexports/recording-xxxxx.gif`.
+By default, recordings are saved to `./gifexports/recording-xxxxxx.gif`.
 
 Note that images are also exported to a temporary working directory while the GIF is being compiled, `./.gifimages/`.
