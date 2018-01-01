@@ -15,7 +15,7 @@ repositories {
 }
 
 ext {
-	gdxVersion = '1.9.5'
+	gdxVersion = '1.9.8'
 }
 
 dependencies {
