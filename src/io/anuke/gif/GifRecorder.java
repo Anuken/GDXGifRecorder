@@ -1,23 +1,28 @@
 package io.anuke.gif;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-
-import javax.imageio.ImageIO;
-import javax.imageio.stream.FileImageOutputStream;
-import javax.imageio.stream.ImageOutputStream;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.PixmapIO;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.utils.*;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.BufferUtils;
+import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.TimeUtils;
+
+import javax.imageio.ImageIO;
+import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.ImageOutputStream;
+import java.awt.image.BufferedImage;
+import java.io.File;
 
 /** Records and saves GIFs. */
 public class GifRecorder{
@@ -320,26 +325,24 @@ public class GifRecorder{
 			pixmaps.add(pixmap);
 		}
 
-		new Thread(new Runnable(){
-			public void run(){
+		new Thread(() -> {
 
-				saveprogress = 0;
-				int i = 0;
-				for(Pixmap pixmap : pixmaps){
-					PixmapIO.writePNG(Gdx.files.absolute(directory.file().getAbsolutePath() + "/frame" + i + ".png"), pixmap);
-					strings.add("frame" + i + ".png");
-					saveprogress += (0.5f / pixmaps.size);
-					i++;
-				}
+            saveprogress = 0;
+            int i = 0;
+            for(Pixmap pixmap : pixmaps){
+                PixmapIO.writePNG(Gdx.files.absolute(directory.file().getAbsolutePath() + "/frame" + i + ".png"), pixmap);
+                strings.add("frame" + i + ".png");
+                saveprogress += (0.5f / pixmaps.size);
+                i++;
+            }
 
-				lastRecording = compileGIF(strings, directory, writedirectory);
-				directory.deleteDirectory();
-				for(Pixmap pixmap : pixmaps){
-					pixmap.dispose();
-				}
-				saving = false;
-			}
-		}).start();
+            lastRecording = compileGIF(strings, directory, writedirectory);
+            directory.deleteDirectory();
+            for(Pixmap pixmap : pixmaps){
+                pixmap.dispose();
+            }
+            saving = false;
+        }).start();
 	}
 
 	private File compileGIF(Array<String> strings, FileHandle inputdirectory, FileHandle directory){
@@ -347,6 +350,7 @@ public class GifRecorder{
 			new RuntimeException("No strings!");
 			return null;
 		}
+
 		try{
 			String time = "" + (int) (System.currentTimeMillis() / 1000);
 			String dirstring = inputdirectory.file().getAbsolutePath();
