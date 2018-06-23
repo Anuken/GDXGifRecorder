@@ -20,6 +20,7 @@ And that's it! You're done.
 - Left-Ctrl + Left-Mouse: expands the recording bounds to the mouse position
 - Left-Shift + Left-Mouse: moves the recording window to the mouse position
 - T: starts/stops recording
+- F: expands the recording bounds to the full screen
 
 By default, recordings are saved to `./gifexports/recording-xxxxxx.gif`.
 

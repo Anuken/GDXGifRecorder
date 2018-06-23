@@ -27,8 +27,13 @@ import java.io.File;
 /** Records and saves GIFs. */
 public class GifRecorder{
 	private static final float defaultSize = 300;
-	
-	private int resizeKey = Keys.CONTROL_LEFT, openKey = Keys.E, recordKey = Keys.T, shiftKey = Keys.SHIFT_LEFT;
+
+	private int resizeKey = Keys.CONTROL_LEFT,
+			openKey = Keys.E,
+			recordKey = Keys.T,
+			shiftKey = Keys.SHIFT_LEFT,
+			fullscreenKey = Keys.F;
+
 	private RecorderController controller = new DefaultController();
 	
 	private Batch batch;
@@ -87,6 +92,13 @@ public class GifRecorder{
 					finishRecording();
 					writeGIF(workdirectory, exportdirectory);
 				}
+			} else if (controller.fullscreenPressed()) {
+				offsetx = 0;
+				offsety = 0;
+				gifx = Gdx.graphics.getWidth() * -0.5f;
+				gify = Gdx.graphics.getHeight() * -0.5f;
+				gifwidth = Gdx.graphics.getWidth();
+				gifheight = Gdx.graphics.getHeight();
 			}
 		}
 	}
@@ -419,6 +431,11 @@ public class GifRecorder{
 		public boolean shiftKeyPressed(){
 			return Gdx.input.isButtonPressed(Buttons.LEFT) && Gdx.input.isKeyPressed(shiftKey);
 		}
+
+		@Override
+		public boolean fullscreenPressed() {
+			return Gdx.input.isKeyJustPressed(fullscreenKey);
+		}
 	}
 
 	/**
@@ -433,5 +450,7 @@ public class GifRecorder{
 		public boolean resizeKeyPressed();
 		
 		public boolean shiftKeyPressed();
+
+		public boolean fullscreenPressed();
 	}
 }
