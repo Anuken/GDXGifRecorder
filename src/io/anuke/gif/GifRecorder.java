@@ -48,7 +48,7 @@ public class GifRecorder{
 	private boolean disableGUI;
 	private float speedMultiplier = 1f;
 	
-	private Array<byte[]> frames = new Array<byte[]>();
+	private Array<byte[]> frames = new Array<>();
 	private File lastRecording;
 	private float frametime;
 	private boolean recording, open;
@@ -329,8 +329,8 @@ public class GifRecorder{
 		if(saving)
 			return;
 		saving = true;
-		final Array<String> strings = new Array<String>();
-		final Array<Pixmap> pixmaps = new Array<Pixmap>();
+		final Array<String> strings = new Array<>();
+		final Array<Pixmap> pixmaps = new Array<>();
 
 		for(byte[] bytes : frames){
 			Pixmap pixmap = createPixmap(bytes);
@@ -359,8 +359,7 @@ public class GifRecorder{
 
 	private File compileGIF(Array<String> strings, FileHandle inputdirectory, FileHandle directory){
 		if(strings.size == 0){
-			new RuntimeException("No strings!");
-			return null;
+			throw new RuntimeException("No strings!");
 		}
 
 		try{
@@ -442,15 +441,15 @@ public class GifRecorder{
 	 * Provide an implementation and call recorder.setController() for custom
 	 * input
 	 */
-	public static interface RecorderController{
-		public boolean openKeyPressed();
+	public interface RecorderController{
+		boolean openKeyPressed();
 
-		public boolean recordKeyPressed();
+		boolean recordKeyPressed();
 
-		public boolean resizeKeyPressed();
+		boolean resizeKeyPressed();
 		
-		public boolean shiftKeyPressed();
+		boolean shiftKeyPressed();
 
-		public boolean fullscreenPressed();
+		boolean fullscreenPressed();
 	}
 }

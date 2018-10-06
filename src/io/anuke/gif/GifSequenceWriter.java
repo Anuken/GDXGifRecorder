@@ -1,13 +1,12 @@
 package io.anuke.gif;
 
-import java.awt.image.RenderedImage;
-import java.io.IOException;
-import java.util.Iterator;
-
 import javax.imageio.*;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageOutputStream;
+import java.awt.image.RenderedImage;
+import java.io.IOException;
+import java.util.Iterator;
 
 public class GifSequenceWriter{
 	protected ImageWriter gifWriter;
@@ -26,7 +25,7 @@ public class GifSequenceWriter{
 	 * @author Elliot Kroo (elliot@kroo.net)
 	 */
 	public GifSequenceWriter(ImageOutputStream outputStream, int imageType, int timeBetweenFramesMS, boolean loopContinuously)
-			throws IIOException, IOException{
+			throws IOException{
 		// my method to create a writer
 		gifWriter = getWriter();
 		imageWriteParam = gifWriter.getDefaultWriteParam();
