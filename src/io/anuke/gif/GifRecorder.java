@@ -73,6 +73,8 @@ public class GifRecorder{
 		pixmap.fill();
 
 		region = new TextureRegion(new Texture(pixmap));
+		
+		pixmap.dispose();
 	}
 
 	protected void doInput(){
